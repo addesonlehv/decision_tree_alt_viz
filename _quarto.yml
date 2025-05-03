@@ -17,9 +17,9 @@ book:
   repo-actions: [edit, issue]
   chapters:
     - index.qmd
-    - data.qmd
+    - methods.qmd
     - results.qmd
-    - d3graph.qmd
+    - improvements.qmd
     - conclusion.qmd
 
 format:
