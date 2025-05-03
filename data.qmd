@@ -1,5 +1,102 @@
 # Data
 
-## Description
+## Code
 
-## Missing value analysis
+```{r}
+library(ISLR2)
+library(rpart)
+library(tidyverse)
+library(rpart.plot)
+
+Hitters <- Hitters |>
+  filter(!is.na(Salary)) |>
+  mutate(Logsal = log(Salary))
+Hitters |> select(Years, Hits, Division, AtBat, Logsal) |>
+  head(15)
+data(mtcars)
+data(airquality)
+
+mod1 <- rpart(Logsal ~ Hits + Years, data = Hitters, cp = 0.01)
+mod2 <- rpart(mpg ~ hp + wt, data = mtcars, cp = 0.01)
+mod3 <- rpart(Ozone ~ Wind + Temp, data = airquality, cp = 0.01)
+
+alt_viz <- function(mod, type = 1) {
+  names <- unique(mod$frame$var)
+  names <- names[names != "<leaf>"]
+  
+  if (length(names) == 1) {
+    xname <- names[1]
+    yname <- NULL
+  } else {
+    yname <- names[1]
+    xname <- names[2]
+  }
+  
+  modelname <- mod$call$data
+  leaf <- rownames(mod$frame[mod$frame$var == "<leaf>", ])
+  paths <- path.rpart(mod, nodes = leaf, print.it = FALSE)
+  
+  get_bounds <- function(conditions) {
+    data <- get(modelname)
+    xvals <- data[[xname]]
+    
+    if (!is.null(yname)) {
+      yvals <- data[[yname]]
+    } else {
+      yvals <- rep(1, length(xvals))
+    }
+    
+    x_min <- ifelse(min(xvals) >= 0, 0, min(xvals)) ; x_max <- max(xvals)
+    y_min <- ifelse(min(yvals) >= 0, 0, min(yvals)) ; y_max <- max(yvals)
+    
+    for (i in conditions) {
+      i <- gsub(" ", "", i)
+      if (grepl(paste0("^", xname, "<"), i)) x_max <- round(min(x_max, as.numeric(sub(paste0(xname, "<"), "", i))), 1)
+      if (grepl(paste0("^", xname, ">="), i)) x_min <- round(max(x_min, as.numeric(sub(paste0(xname, ">="), "", i))), 1)
+      if (!is.null(yname)) {
+        if (grepl(paste0("^", yname, "<"), i)) y_max <- round(min(y_max, as.numeric(sub(paste0(yname, "<"), "", i))), 1)
+        if (grepl(paste0("^", yname, ">="), i)) y_min <- round(max(y_min, as.numeric(sub(paste0(yname, ">="), "", i))), 1)
+      }
+    }
+    return(c(x_min, x_max, y_min, y_max))
+  }
+  
+  bounds_list <- lapply(paths, get_bounds)
+  bounds_df <- as.data.frame(do.call(rbind, bounds_list))
+  colnames(bounds_df) <- c("xmin", "xmax", "ymin", "ymax")
+  
+  leaf_preds <- mod$frame[mod$frame$var == "<leaf>", "yval"]
+  regions <- bounds_df |> mutate(pred = round(leaf_preds, 1)) |> tibble()
+  
+  plot <- ggplot(regions) +
+    geom_rect(aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = pred), color = "black", alpha = 0.5) +
+    geom_text(aes(x = (xmin + xmax)/2, y = (ymin + ymax)/2, label = pred), size = 3.5) +
+    labs(x = xname, y = ifelse(is.null(yname), "", yname)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  if (type == 1) {
+    print(plot)
+  } else if (type == 2) {
+    print(regions)
+  } else if (type == 3) {
+    print(plot); print(regions)
+  } else {
+    stop("Invalid `type` argument. Must be 1 (plot), 2 (data), or 3 (both).")
+  }
+}
+
+alt_viz(mod1)
+alt_viz(mod2)
+alt_viz(mod3)
+rpart.plot(mod1)
+rpart.plot(mod2)
+rpart.plot(mod3)
+
+# what to do when we have a binary variable
+# alt_viz(rpart(Logsal ~ Hits + Division, data = Hitters, cp = 0.01))
+# what to do when we have more than 2 variables
+# alt_viz(rpart(Ozone ~ Wind + Temp + Solar.R, data = airquality, cp = 0.01))
+# what to do when only one variable is important for splits
+alt_viz(rpart(mpg ~ hp + qsec, data = mtcars, cp = 0.01))
+```
