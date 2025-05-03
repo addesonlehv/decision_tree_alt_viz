@@ -6,7 +6,7 @@ execute:
   echo: true
 
 book:
-  title: "Decision Tree Alternate Visualization"
+  title: "Decision Tree Alternative Visualization"
   author:
     - Addeson Lehv (al4246)
   repo-url: https://github.com/addesonlehv/decision_tree_alt_viz
