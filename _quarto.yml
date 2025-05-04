@@ -25,6 +25,6 @@ book:
 format:
   html:
     theme: yeti
-    code-fold: true
+    code-fold: false
 
 

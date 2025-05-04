@@ -1,102 +1,60 @@
 # Methods
 
-## Code
+In this section, we'll walk through the methodology of creating the alternative visualization function in `R`. The goal is to provide both a broad overview of the approach to creating this function, as well as provide a specific step-by-step explanation of the function's underlying code. It's pretty long, but bear with me!
+
+## Coding Approach
+
+Presumably, there are many possible ways to go about creating this alternative visualization function. So where should we start? When looking at the decision splits in the sample alternative visualization, there seemed to really be two different ways we could go about recreating this graph.
+
+### Approach 1
+
+First, we could think about the splits as being created by horizontal and vertical lines with each line representing a decision split. If we were careful to truncate each line so that it only spans the region where the corresponding split condition applies, we can use these boundaries to define predictions regions, which we could then label with the prediction value. This method seemed somewhat challenging to implement in `R`, however -- especially considering that we'd need to be able to effectively truncate each line.
+
+### Approach 2
+
+The second approach, then, was to think about each of the prediction regions as rectangles. Each of these rectangles would have coordinates defined by the minimum and maximum values of the predictor variables that satisfy the split conditions leading to a particular leaf. For example, if we look at the sample alternative visualization with the prediction 5.3, we can see that the minimum x-value that would satisfy the prediction is 4 years and the maximum value is 5 years. Similarly, the minimum y-value that would satisfy the prediction is 0 hits and the maximum value is 125 hits. This, in turn, gives us coordinates of a rectangle -- (4, 0), (4, 125), (5, 0), and (5, 125) -- that represents the prediction region. In other words, by tracing the sequence of decision rules for each leaf node, we can derive the exact bounds of the region it occupies in the predictor space -- and subsequently use those bounds to draw the rectangle and assign its predicted value.
+
+![Decision splits give us coordinates of rectangles representing prediction regions](image2.png)
+That is, we begin with the individual leaf nodes and their corresponding predicted values. Then, after examining the split conditions that lead to each leaf, we determine the bounds of each predictor variable we can use to define the coordinates of the rectangles used in the graph. This contrasts with a more “top-down” approach, where one might start with the decision splits and work forward to identify the resulting prediction regions.
+
+## Coding the Function
+
+With this general approach in mind, we ultimately know what goal we are aiming for: some sort of `geom_rect` (rectangle) function that makes a bunch of rectangles based on the coordinates set by the decision split bounds. Thus, we first need to somehow extract each prediction region's decision split bounds and each region's corresponding prediction. Before we begin though, we need to do a little bit of "housekeeping" to set up the function and get the information that we need.
+
+### Housekeeping
+
+The first step is to simply set up the function. We will call our function `alt_viz` (short for alternative visualization) and it will take two inputs. The first input, `mod`, is a regression model that is created using the the `rpart` function in the `rpart` package -- thus making the `rpart` package a requirement for using the function. The second input, `type`, is a numeric value that corresponds to 1, 2, or 3. We'll talk about this more later, but it allows the user to control what type of output they receive from running the function. This is the first line of code of our function:
 
 ```{r}
-library(ISLR2)
-library(rpart)
-library(tidyverse)
-library(rpart.plot)
-
-Hitters <- Hitters |>
-  filter(!is.na(Salary)) |>
-  mutate(Logsal = log(Salary))
-Hitters |> select(Years, Hits, Division, AtBat, Logsal) |>
-  head(15)
-data(mtcars)
-data(airquality)
-
-mod1 <- rpart(Logsal ~ Hits + Years, data = Hitters, cp = 0.01)
-mod2 <- rpart(mpg ~ hp + wt, data = mtcars, cp = 0.01)
-mod3 <- rpart(Ozone ~ Wind + Temp, data = airquality, cp = 0.01)
-
-alt_viz <- function(mod, type = 1) {
-  names <- unique(mod$frame$var)
-  names <- names[names != "<leaf>"]
-  
-  if (length(names) == 1) {
-    xname <- names[1]
-    yname <- NULL
-  } else {
-    yname <- names[1]
-    xname <- names[2]
-  }
-  
-  modelname <- mod$call$data
-  leaf <- rownames(mod$frame[mod$frame$var == "<leaf>", ])
-  paths <- path.rpart(mod, nodes = leaf, print.it = FALSE)
-  
-  get_bounds <- function(conditions) {
-    data <- get(modelname)
-    xvals <- data[[xname]]
-    
-    if (!is.null(yname)) {
-      yvals <- data[[yname]]
-    } else {
-      yvals <- rep(1, length(xvals))
-    }
-    
-    x_min <- ifelse(min(xvals) >= 0, 0, min(xvals)) ; x_max <- max(xvals)
-    y_min <- ifelse(min(yvals) >= 0, 0, min(yvals)) ; y_max <- max(yvals)
-    
-    for (i in conditions) {
-      i <- gsub(" ", "", i)
-      if (grepl(paste0("^", xname, "<"), i)) x_max <- round(min(x_max, as.numeric(sub(paste0(xname, "<"), "", i))), 1)
-      if (grepl(paste0("^", xname, ">="), i)) x_min <- round(max(x_min, as.numeric(sub(paste0(xname, ">="), "", i))), 1)
-      if (!is.null(yname)) {
-        if (grepl(paste0("^", yname, "<"), i)) y_max <- round(min(y_max, as.numeric(sub(paste0(yname, "<"), "", i))), 1)
-        if (grepl(paste0("^", yname, ">="), i)) y_min <- round(max(y_min, as.numeric(sub(paste0(yname, ">="), "", i))), 1)
-      }
-    }
-    return(c(x_min, x_max, y_min, y_max))
-  }
-  
-  bounds_list <- lapply(paths, get_bounds)
-  bounds_df <- as.data.frame(do.call(rbind, bounds_list))
-  colnames(bounds_df) <- c("xmin", "xmax", "ymin", "ymax")
-  
-  leaf_preds <- mod$frame[mod$frame$var == "<leaf>", "yval"]
-  regions <- bounds_df |> mutate(pred = round(leaf_preds, 1)) |> tibble()
-  
-  plot <- ggplot(regions) +
-    geom_rect(aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = pred), color = "black", alpha = 0.5) +
-    geom_text(aes(x = (xmin + xmax)/2, y = (ymin + ymax)/2, label = pred), size = 3.5) +
-    labs(x = xname, y = ifelse(is.null(yname), "", yname)) +
-    theme_minimal() +
-    theme(legend.position = "none")
-  
-  if (type == 1) {
-    print(plot)
-  } else if (type == 2) {
-    print(regions)
-  } else if (type == 3) {
-    print(plot); print(regions)
-  } else {
-    stop("Invalid `type` argument. Must be 1 (plot), 2 (data), or 3 (both).")
-  }
-}
-
-alt_viz(mod1)
-alt_viz(mod2)
-alt_viz(mod3)
-rpart.plot(mod1)
-rpart.plot(mod2)
-rpart.plot(mod3)
-
-# what to do when we have a binary variable
-# alt_viz(rpart(Logsal ~ Hits + Division, data = Hitters, cp = 0.01))
-# what to do when we have more than 2 variables
-# alt_viz(rpart(Ozone ~ Wind + Temp + Solar.R, data = airquality, cp = 0.01))
-# what to do when only one variable is important for splits
-alt_viz(rpart(mpg ~ hp + qsec, data = mtcars, cp = 0.01))
+## chunk 1: calling the function
 ```
+
+Now, we need to figure out how to extract the necessary information from the model that is created using the `rpart` function. We know that the model created contains the information needed to build the classic decision tree -- since the `rpart.plot` function, which makes these conventional visualizations, also uses this model. This is where we need to be a little creative. A little bit of research tells us that there's a function called `path.rpart`, which retrieves a sequence of split conditions -- that is, the decision rules -- that lead from the root of the tree to each specified node. For example, using the same baseball data that was used in the sample alternative visualization, the result of the `path.rpart` function for one (leaf) node looks like this:
+
+`node number:27`<br>
+`root` <br>
+`Years>=4.5` <br>
+`Hits< 117.5`<br>
+`Years>=6.5`<br>
+`Hits>=50.5`
+
+This sequence should tell us everything that we need to know about the split decisions for this particular (leaf) node: after the root, if the number of years a player has been playing baseball is greater than or equal to 4.5 years, and they have fewer than 117.5 hits, and have been playing for at least 6.5 years, and have 50.5 or more hits, then they fall into this specific prediction region. This mean that we can create the bounds of the rectangular prediction region for this node -- and other nodes -- if we do the following:
+
+* Turn the sequencing rules into a vector that contains the minimum and maximum values for the `Hits` and `Years` predictors. For example, we know that the minimum value for `Hits` in this prediction region is 50.5 and the maximum value is 117.5. Some additional points to consider:
+
+  * If there is more than one lower or upper bound conditions, like $Years \geq 4.5$ and $Years \geq 6.5$, then we need to keep the more restrictive condition -- $Years \geq 6.5$, in this instance -- since it defines a narrower region.
+  * If there is no explicitly specified inequality, like $Years < {}...{}$, then we should assume that there is no upper or lower constraint in that direction and, thus, should fall back on the reasonable default of the maximum or minimum value of the dataset for the purposes.
+  * If we are interested in generalizability to new datasets (which we are), then we need to design the code logic such that it doesn't rely on any specific dataset predictor names. Rather, it should flexibly adapt to new trees and new data.
+
+* Identify only the leaf nodes and have the `path.rpart` function return the sequence of split conditions that lead to each one.
+
+* Apply a function that does step (1) to all of these leaf nodes. This will create a data frame with each leaf node and the relevant rectangle boundaries for their prediction regions.
+
+We can take these principles and turn them into code. But first, just a little bit more housekeeping.
+
+### More Housekeeping
+
+```{r, eval = FALSE}
+```
+
+If all of this felt a little fragmented -- fear not! Below, is the entire function written uninterrupted.
