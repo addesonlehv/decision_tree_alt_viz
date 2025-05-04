@@ -1,4 +1,4 @@
-# Methods
+# Methods and Function
 
 In this section, we'll walk through the methodology of creating the alternative visualization function in `R`. The goal is to provide both a broad overview of the approach to creating this function, as well as provide a specific step-by-step explanation of the function's underlying code. It's pretty long, but bear with me!
 
@@ -39,7 +39,7 @@ Now, we need to figure out how to extract the necessary information from the mod
 > `Years>=6.5`<br>
 > `Hits>=50.5`
 
-This sequence should tell us everything that we need to know about the split decisions for this particular (leaf) node: after the root, if the number of years a player has been playing baseball is greater than or equal to 4.5 years, and they have fewer than 117.5 hits, and have been playing for at least 6.5 years, and have 50.5 or more hits, then they fall into this specific prediction region. This mean that we can create the bounds of the rectangular prediction region for this node -- and other nodes -- if we do the following:
+This sequence should tell us everything that we need to know about the split decisions for this particular (leaf) node: after the root, if the number of years a player has been playing baseball in the Major League is greater than or equal to 4.5 years, and they have fewer than 117.5 hits, and have been playing for at least 6.5 years, and have 50.5 or more hits, then they fall into this specific prediction region. This mean that we can create the bounds of the rectangular prediction region for this node -- and other nodes -- if we do the following:
 
 * Turn the sequencing rules into a vector that contains the minimum and maximum values for the `Hits` and `Years` predictors. For example, we know that the minimum value for `Hits` in this prediction region is 50.5 and the maximum value is 117.5. Some additional points to consider:
 
@@ -185,9 +185,9 @@ The very last step in creating this function is to control what returned to the 
 ```{r, eval = FALSE}
 # control the printing of results
   if (type == 1) {
-    print(plot)
+    return(plot)
   } else if (type == 2) {
-    print(regions)
+    return(regions)
   } else if (type == 3) {
     print(plot); print(regions)
   } else {
@@ -259,9 +259,9 @@ alt_viz <- function(mod, type = 1) {
     theme(legend.position = "none")
   
   if (type == 1) {
-    print(plot)
+    return(plot)
   } else if (type == 2) {
-    print(regions)
+    return(regions)
   } else if (type == 3) {
     print(plot); print(regions)
   } else {

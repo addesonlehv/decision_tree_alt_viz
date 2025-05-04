@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./methods.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Methods</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Methods and Function</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./improvements.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Future Updates</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Future Directions</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -193,8 +193,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#examples-of-usage" id="toc-examples-of-usage" class="nav-link" data-scroll-target="#examples-of-usage"><span class="header-section-number">3.2</span> Examples of Usage</a>
   <ul class="collapse">
   <li><a href="#creating-plots" id="toc-creating-plots" class="nav-link" data-scroll-target="#creating-plots"><span class="header-section-number">3.2.1</span> Creating Plots</a></li>
-  <li><a href="#changing-the-output" id="toc-changing-the-output" class="nav-link" data-scroll-target="#changing-the-output"><span class="header-section-number">3.2.2</span> Changing the Output</a></li>
-  <li><a href="#creative-usages" id="toc-creative-usages" class="nav-link" data-scroll-target="#creative-usages"><span class="header-section-number">3.2.3</span> Creative Usages</a></li>
+  <li><a href="#creating-plots-edge-cases" id="toc-creating-plots-edge-cases" class="nav-link" data-scroll-target="#creating-plots-edge-cases"><span class="header-section-number">3.2.2</span> Creating Plots: Edge Cases</a></li>
+  <li><a href="#changing-the-output" id="toc-changing-the-output" class="nav-link" data-scroll-target="#changing-the-output"><span class="header-section-number">3.2.3</span> Changing the Output</a></li>
+  <li><a href="#extension-creative-usages" id="toc-extension-creative-usages" class="nav-link" data-scroll-target="#extension-creative-usages"><span class="header-section-number">3.2.4</span> Extension: Creative Usages</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/edit/main/results.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -257,7 +258,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="details" class="level3" data-number="3.1.4">
 <h3 data-number="3.1.4" class="anchored" data-anchor-id="details"><span class="header-section-number">3.1.4</span> Details</h3>
-<p>This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not intended for classification trees.</p>
+<p>This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necesssarily intended for classification trees.</p>
 <p>The visualization works by extracting the sequence of decision splits that lead to each leaf node, then calculating the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.</p>
 <p>The function requires that the original dataset used to fit the model is still loaded in memory, as it is referenced when extracting variable ranges.</p>
 <p>The <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> and <a href="https://www.tidyverse.org/packages/"><code>tidyverse</code></a> packages must be loaded prior to using this function.</p>
@@ -265,16 +266,228 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="examples-of-usage" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="examples-of-usage"><span class="header-section-number">3.2</span> Examples of Usage</h2>
+<p>We now illustrate the practical utility of the alternative visualization function by going through several examples of the function on sample data. Consistent with the requirements outlined in the mock R Documentation, let’s start by loading the two required packages, <code>tidyverse</code> and <code>rpart</code>. We will also load up the four datasets that we are using: <a href="https://search.r-project.org/CRAN/refmans/ISLR/html/Hitters.html"><code>Hitters</code></a>, <a href="https://www.rdocumentation.org/packages/datasets/versions/3.6.2/topics/airquality"><code>airquality</code></a>, <a href="https://www.rdocumentation.org/packages/datasets/versions/3.6.2/topics/mtcars"><code>mtcars</code></a>, and <a href="https://www.rdocumentation.org/packages/rpart/versions/4.1.24/topics/kyphosis"><code>kyphosis</code></a>. Since the actual meaning of these datasets isn’t directly relevant to us, we won’t spend time describing them or their variables – for more information about these datasets, please see the documentations that are hyperlinked.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the packages</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rpart)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># load the datasets</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Hitters</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(airquality)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"kyphosis"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <section id="creating-plots" class="level3" data-number="3.2.1">
 <h3 data-number="3.2.1" class="anchored" data-anchor-id="creating-plots"><span class="header-section-number">3.2.1</span> Creating Plots</h3>
+<p>We display regression tree models for two different datasets and their corresponding plots created using the <code>alt_viz</code> function.</p>
+<section id="hitters-hitters-dataset" class="level4" data-number="3.2.1.1">
+<h4 data-number="3.2.1.1" class="anchored" data-anchor-id="hitters-hitters-dataset"><span class="header-section-number">3.2.1.1</span> Hitters (<code>Hitters</code>) Dataset</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mod1 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(Logsal <span class="sc">~</span> Hits <span class="sc">+</span> Years, <span class="at">data =</span> Hitters, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
-<section id="changing-the-output" class="level3" data-number="3.2.2">
-<h3 data-number="3.2.2" class="anchored" data-anchor-id="changing-the-output"><span class="header-section-number">3.2.2</span> Changing the Output</h3>
+<section id="air-quality-airquality-dataset" class="level4" data-number="3.2.1.2">
+<h4 data-number="3.2.1.2" class="anchored" data-anchor-id="air-quality-airquality-dataset"><span class="header-section-number">3.2.1.2</span> Air Quality (<code>airquality</code>) Dataset</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(Ozone <span class="sc">~</span> Wind <span class="sc">+</span> Temp, <span class="at">data =</span> airquality, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
-<section id="creative-usages" class="level3" data-number="3.2.3">
-<h3 data-number="3.2.3" class="anchored" data-anchor-id="creative-usages"><span class="header-section-number">3.2.3</span> Creative Usages</h3>
+<section id="fuel-efficiency-mtcars-dataset" class="level4" data-number="3.2.1.3">
+<h4 data-number="3.2.1.3" class="anchored" data-anchor-id="fuel-efficiency-mtcars-dataset"><span class="header-section-number">3.2.1.3</span> Fuel Efficiency (<code>mtcars</code>) Dataset</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mod3 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> wt, <span class="at">data =</span> mtcars, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="creating-plots-edge-cases" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="creating-plots-edge-cases"><span class="header-section-number">3.2.2</span> Creating Plots: Edge Cases</h3>
+<p>There are also a couple of edge cases – where the data or model structure diverges from the ideal scenario of continuous predictors and outcomes – that merit our discussion.</p>
+<section id="one-important-predictor-fuel-efficiency-mtcars-dataset" class="level4" data-number="3.2.2.1">
+<h4 data-number="3.2.2.1" class="anchored" data-anchor-id="one-important-predictor-fuel-efficiency-mtcars-dataset"><span class="header-section-number">3.2.2.1</span> One Important Predictor: Fuel Efficiency (<code>mtcars</code>) Dataset</h4>
+<p>In some cases, a regression tree might only use one of the predictors in the model. That is, one variable is important for splits. The model was designed to handle these situations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mod4 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> qsec, <span class="at">data =</span> mtcars, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here, only the horsepower variable is important for splitting. Thus, the prediction is 25 miles per gallon if the horsepower is less than 118 and 15.8 miles per gallon if the horsepower is more than 118. The y-axis is not meaningful, except to maintain the rectangular shape.</p>
+</section>
+<section id="binary-predictor-fuel-efficiency-mtcars-dataset" class="level4" data-number="3.2.2.2">
+<h4 data-number="3.2.2.2" class="anchored" data-anchor-id="binary-predictor-fuel-efficiency-mtcars-dataset"><span class="header-section-number">3.2.2.2</span> Binary Predictor: Fuel Efficiency (<code>mtcars</code>) Dataset</h4>
+<p>As mentioned, binary predictors are not recommended for the dataset. However, if the binary predictor is coded with either 0 or 1, then it is possible to make the alternative visualization.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mod5 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(mpg <span class="sc">~</span> am <span class="sc">+</span> qsec, <span class="at">data =</span> mtcars, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here, only the <code>am</code> variable (which takes 0 if the car is automatic and 1 if the car is manual) is important. As we can see, the alternative visualization is helpful to the extent that we know if <code>am</code> is less than 0.5, it’s 0 and thus classified as automatic. If it’s more than 0.5, it’s 1 and thus classified as manual. Therefore, if a car falls into the automatic prediction region (the one to the left in gray), the predict miles per gallon is 17.1 while it’s 24.4 miles per gallon if a car falls into the manual prediction region (the one to the right in blue).</p>
+</section>
+<section id="binary-outcome-kyphosis-kyphosis-dataset" class="level4" data-number="3.2.2.3">
+<h4 data-number="3.2.2.3" class="anchored" data-anchor-id="binary-outcome-kyphosis-kyphosis-dataset"><span class="header-section-number">3.2.2.3</span> Binary Outcome: Kyphosis (<code>Kyphosis</code>) Dataset</h4>
+<p>The alternative visualization function really isn’t designed for classification decision trees with binary outcomes and is not recommended. However, if we recode a binary outcome to have either 0 or 1, we can make the alternative visualization.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># recode the outcome</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> kyphosis <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">bin =</span> <span class="fu">ifelse</span>(Kyphosis <span class="sc">==</span> <span class="st">"absent"</span>, <span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create the alternative visualization</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>mod6 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(bin <span class="sc">~</span> Number <span class="sc">+</span> Start, <span class="at">data =</span> data, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>While the visualization did print, it requires additional interpretation. That is, assuming a 0.5 threshold, if the prediction is below 0.5, it gets classified as 0 (in this example, that kyphosis is absent) and if the prediction is above 0.5, it gets classified as 1 (in this instance, that kyphosis is present). This adds an additional layer of complexity to the interpretation in which case it might make more sense to just use the conventional decision tree which handles classifications better.</p>
+</section>
+</section>
+<section id="changing-the-output" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="changing-the-output"><span class="header-section-number">3.2.3</span> Changing the Output</h3>
+<p>The model allows for some user input with respect to what the function outputs. The default is <code>type = 1</code>, which produces just the plots (as we’ve seen). But there are other options, too.</p>
+<section id="data-frame-only-type-2" class="level4" data-number="3.2.3.1">
+<h4 data-number="3.2.3.1" class="anchored" data-anchor-id="data-frame-only-type-2"><span class="header-section-number">3.2.3.1</span> Data Frame Only (<code>type = 2</code>)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 5
+   xmin  xmax  ymin  ymax  pred
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1   0   114     0     3.5   4.7
+2 114   238     0     3.5   5.3
+3   0   238     3.5   4.5   5.6
+4   0   118.    4.5   6.5   5.7
+5   0    50.5   6.5  24     5.7
+6  50.5 118.    6.5  24     6.2
+7 118.  238     4.5  24     6.7</code></pre>
+</div>
+</div>
+</section>
+<section id="data-frame-and-plot-together-type-3" class="level4" data-number="3.2.3.2">
+<h4 data-number="3.2.3.2" class="anchored" data-anchor-id="data-frame-and-plot-together-type-3"><span class="header-section-number">3.2.3.2</span> Data Frame and Plot Together (<code>type = 3</code>)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 5
+   xmin  xmax  ymin  ymax  pred
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1   0   114     0     3.5   4.7
+2 114   238     0     3.5   5.3
+3   0   238     3.5   4.5   5.6
+4   0   118.    4.5   6.5   5.7
+5   0    50.5   6.5  24     5.7
+6  50.5 118.    6.5  24     6.2
+7 118.  238     4.5  24     6.7</code></pre>
+</div>
+</div>
+</section>
+<section id="errors-type-anything-but-1-2-or-3" class="level4" data-number="3.2.3.3">
+<h4 data-number="3.2.3.3" class="anchored" data-anchor-id="errors-type-anything-but-1-2-or-3"><span class="header-section-number">3.2.3.3</span> Errors (<code>type = anything but 1, 2, or 3</code>)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">1467</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in alt_viz(mod = mod1, type = 1467): Invalid `type` argument. Must be 1 (plot), 2 (data), or 3 (both).</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="extension-creative-usages" class="level3" data-number="3.2.4">
+<h3 data-number="3.2.4" class="anchored" data-anchor-id="extension-creative-usages"><span class="header-section-number">3.2.4</span> Extension: Creative Usages</h3>
+<section id="plot-actual-data-onto-predictor-space" class="level4" data-number="3.2.4.1">
+<h4 data-number="3.2.4.1" class="anchored" data-anchor-id="plot-actual-data-onto-predictor-space"><span class="header-section-number">3.2.4.1</span> Plot Actual Data onto Predictor Space</h4>
+<p>Suppose we want to compare the actual outcome value of each observed data point to the predicted region created with the <code>rpart</code> model. We can do this by plotting the individual, observed data points from the original dataset directly onto the predictor space created by our alternative visualization. This enables us to determine how well each observed point aligns with the predicted value (based on its region) – something which a classic decision tree can’t do.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># only label 30% of the data points</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1467</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>label_subset <span class="ot">&lt;-</span> mtcars <span class="sc">%&gt;%</span> <span class="fu">slice_sample</span>(<span class="at">prop =</span> <span class="fl">0.3</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod3) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> mtcars, <span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y =</span> wt, <span class="at">color =</span> mpg), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> label_subset, <span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y =</span> wt, <span class="at">label =</span> <span class="fu">round</span>(mpg, <span class="dv">1</span>)), </span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.7</span>, <span class="at">size =</span> <span class="fl">2.7641</span>, <span class="at">color =</span> <span class="st">"firebrick4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here, we have the color vary (by the same color scale as the alternative visualization) for the observed data. That is, if the prediction and observed value are close, they will share the same intensity of blue – that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well well the regression tree using <code>rpart</code> captures the structure of the data.</p>
+<p>In this case, we see that most observed <code>mpg</code> values fall relatively close to the predicted region averages, suggesting that <code>mod3</code> generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be a lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) are also relatively close to the predicted value of 29 miles per gallon.</p>
+</section>
+<section id="changing-the-plot-color" class="level4" data-number="3.2.4.2">
+<h4 data-number="3.2.4.2" class="anchored" data-anchor-id="changing-the-plot-color"><span class="header-section-number">3.2.4.2</span> Changing the Plot Color</h4>
+<p>Suppose a user really doesn’t like the color blue and doesn’t want the alternative visualization to be shaded in with blue. I apologize to that person, but blue is my favorite color – and so, if they want to get rid of the blue, they have to remake the chart from scratch. Luckily, this isn’t that difficult if we just extract the data frame used to make the graph with the <code>type = 2</code> argument in the <code>alt_viz</code> function. Once that’s done, we just need to replot with the similar code that modifies the color (let’s say to black and white).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the regions</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>regions <span class="ot">&lt;-</span> <span class="fu">alt_viz</span>(mod1, <span class="at">type =</span> <span class="dv">2</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># replot the regions with the new color</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(regions) <span class="sc">+</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_rect</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> xmin, <span class="at">xmax =</span> xmax, <span class="at">ymin =</span> ymin, <span class="at">ymax =</span> ymax, <span class="at">fill =</span> pred), <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">x =</span> (xmin <span class="sc">+</span> xmax)<span class="sc">/</span><span class="dv">2</span>, <span class="at">y =</span> (ymin <span class="sc">+</span> ymax)<span class="sc">/</span><span class="dv">2</span>, <span class="at">label =</span> pred), <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Hits"</span>, <span class="at">y =</span> <span class="st">"Years"</span>) <span class="sc">+</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">high =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
 </section>
 </section>
 
@@ -701,13 +914,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./methods.html" class="pagination-link" aria-label="Methods">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Methods</span></span>
+      <a href="./methods.html" class="pagination-link" aria-label="Methods and Function">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Methods and Function</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./improvements.html" class="pagination-link" aria-label="Future Updates">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Future Updates</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./improvements.html" class="pagination-link" aria-label="Future Directions">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Future Directions</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

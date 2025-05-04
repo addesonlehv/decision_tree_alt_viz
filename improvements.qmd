@@ -1,4 +1,4 @@
-# Future Updates
+# Future Directions
 
 - make coding better/more efficient -- no nested statements
 - fixing errors for the edge cases

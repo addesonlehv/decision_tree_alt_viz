@@ -4,6 +4,7 @@ In this section, we'll concisely outline the usage of the `alt_viz` function tha
 
 ```{r, include = FALSE}
 library(tidyverse)
+library(rpart)
 alt_viz <- function(mod, type = 1) {
   names <- unique(mod$frame$var)
   names <- names[names != "<leaf>"]
@@ -60,9 +61,9 @@ alt_viz <- function(mod, type = 1) {
     theme(legend.position = "none")
   
   if (type == 1) {
-    print(plot)
+    return(plot)
   } else if (type == 2) {
-    print(regions)
+    return(regions)
   } else if (type == 3) {
     print(plot); print(regions)
   } else {
@@ -85,14 +86,14 @@ alt_viz(mod, type = 1)
 
 ### Arguments
 
-Name | Description
-------------- | -------------
-`mod`  | A fitted [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) regression tree model object. The tree model should include no more than two predictors.
-`type` | An integer (with default 1) that specifies the type of plot. Possible values: <br> **1** returns only the plot <br> **2** returns only the data frame with prediction region bounds and prediction values <br> **3** returns both the plot and data frame
+| Name | Description |
+|------------------------------------|------------------------------------|
+| `mod` | A fitted [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) regression tree model object. The tree model should include no more than two predictors. |
+| `type` | An integer (with default 1) that specifies the type of plot. Possible values: <br> **1** returns only the plot <br> **2** returns only the data frame with prediction region bounds and prediction values <br> **3** returns both the plot and data frame |
 
 ### Details
 
-This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not intended for classification trees.
+This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necesssarily intended for classification trees.
 
 The visualization works by extracting the sequence of decision splits that lead to each leaf node, then calculating the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.
 
@@ -102,8 +103,153 @@ The [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) and [`tid
 
 ## Examples of Usage
 
+We now illustrate the practical utility of the alternative visualization function by going through several examples of the function on sample data. Consistent with the requirements outlined in the mock R Documentation, let's start by loading the two required packages, `tidyverse` and `rpart`. We will also load up the four datasets that we are using: [`Hitters`](https://search.r-project.org/CRAN/refmans/ISLR/html/Hitters.html), [`airquality`](https://www.rdocumentation.org/packages/datasets/versions/3.6.2/topics/airquality), [`mtcars`](https://www.rdocumentation.org/packages/datasets/versions/3.6.2/topics/mtcars), and [`kyphosis`](https://www.rdocumentation.org/packages/rpart/versions/4.1.24/topics/kyphosis). Since the actual meaning of these datasets isn't directly relevant to us, we won't spend time describing them or their variables -- for more information about these datasets, please see the documentations that are hyperlinked.
+
+```{r, echo = FALSE}
+library(ISLR2)
+Hitters <- Hitters |>
+  filter(!is.na(Salary)) |>
+  mutate(Logsal = log(Salary))
+```
+
+```{r, results = "hide"}
+# load the packages
+library(tidyverse)
+library(rpart)
+
+# load the datasets
+Hitters
+data(airquality)
+data(mtcars)
+data("kyphosis")
+```
+
 ### Creating Plots
+
+We display regression tree models for two different datasets and their corresponding plots created using the `alt_viz` function.
+
+#### Hitters (`Hitters`) Dataset
+
+```{r}
+mod1 <- rpart(Logsal ~ Hits + Years, data = Hitters, cp = 0.01)
+alt_viz(mod1)
+```
+
+#### Air Quality (`airquality`) Dataset
+
+```{r}
+mod2 <- rpart(Ozone ~ Wind + Temp, data = airquality, cp = 0.01)
+alt_viz(mod2)
+```
+
+#### Fuel Efficiency (`mtcars`) Dataset
+
+```{r}
+mod3 <- rpart(mpg ~ hp + wt, data = mtcars, cp = 0.01)
+alt_viz(mod3)
+```
+
+### Creating Plots: Edge Cases
+
+There are also a couple of edge cases -- where the data or model structure diverges from the ideal scenario of continuous predictors and outcomes -- that merit our discussion.
+
+#### One Important Predictor: Fuel Efficiency (`mtcars`) Dataset
+
+In some cases, a regression tree might only use one of the predictors in the model. That is, one variable is important for splits. The model was designed to handle these situations.
+
+```{r}
+mod4 <- rpart(mpg ~ hp + qsec, data = mtcars, cp = 0.01)
+alt_viz(mod4)
+```
+
+Here, only the horsepower variable is important for splitting. Thus, the prediction is 25 miles per gallon if the horsepower is less than 118 and 15.8 miles per gallon if the horsepower is more than 118. The y-axis is not meaningful, except to maintain the rectangular shape.
+
+#### Binary Predictor: Fuel Efficiency (`mtcars`) Dataset
+
+As mentioned, binary predictors are not recommended for the dataset. However, if the binary predictor is coded with either 0 or 1, then it is possible to make the alternative visualization.
+
+```{r}
+mod5 <- rpart(mpg ~ am + qsec, data = mtcars, cp = 0.01)
+alt_viz(mod5)
+```
+
+Here, only the `am` variable (which takes 0 if the car is automatic and 1 if the car is manual) is important. As we can see, the alternative visualization is helpful to the extent that we know if `am` is less than 0.5, it's 0 and thus classified as automatic. If it's more than 0.5, it's 1 and thus classified as manual. Therefore, if a car falls into the automatic prediction region (the one to the left in gray), the predict miles per gallon is 17.1 while it's 24.4 miles per gallon if a car falls into the manual prediction region (the one to the right in blue).
+
+#### Binary Outcome: Kyphosis (`Kyphosis`) Dataset
+
+The alternative visualization function really isn't designed for classification decision trees with binary outcomes and is not recommended. However, if we recode a binary outcome to have either 0 or 1, we can make the alternative visualization.
+
+```{r}
+# recode the outcome
+data <- kyphosis |> mutate(bin = ifelse(Kyphosis == "absent", 0, 1))
+
+# create the alternative visualization
+mod6 <- rpart(bin ~ Number + Start, data = data, cp = 0.01)
+alt_viz(mod6)
+```
+
+While the visualization did print, it requires additional interpretation. That is, assuming a 0.5 threshold, if the prediction is below 0.5, it gets classified as 0 (in this example, that kyphosis is absent) and if the prediction is above 0.5, it gets classified as 1 (in this instance, that kyphosis is present). This adds an additional layer of complexity to the interpretation in which case it might make more sense to just use the conventional decision tree which handles classifications better.
 
 ### Changing the Output
 
-### Creative Usages
+The model allows for some user input with respect to what the function outputs. The default is `type = 1`, which produces just the plots (as we've seen). But there are other options, too.
+
+#### Data Frame Only (`type = 2`)
+
+```{r}
+alt_viz(mod = mod1, type = 2)
+```
+
+#### Data Frame and Plot Together (`type = 3`)
+
+```{r}
+alt_viz(mod = mod1, type = 3)
+```
+
+#### Errors (`type = anything but 1, 2, or 3`)
+
+```{r, error = TRUE}
+alt_viz(mod = mod1, type = 1467)
+```
+
+### Extension: Creative Usages
+
+#### Plot Actual Data onto Predictor Space
+
+Suppose we want to compare the actual outcome value of each observed data point to the predicted region created with the `rpart` model. We can do this by plotting the individual, observed data points from the original dataset directly onto the predictor space created by our alternative visualization. This enables us to determine how well each observed point aligns with the predicted value (based on its region) -- something which a classic decision tree can’t do.
+
+```{r}
+# only label 30% of the data points
+set.seed(1467)
+label_subset <- mtcars %>% slice_sample(prop = 0.3)
+
+# plot
+alt_viz(mod3) +
+  geom_point(data = mtcars, aes(x = hp, y = wt, color = mpg), size = 2) +
+  geom_text(data = label_subset, aes(x = hp, y = wt, label = round(mpg, 1)), 
+            vjust = -0.7, size = 2.7641, color = "firebrick4")
+```
+
+Here, we have the color vary (by the same color scale as the alternative visualization) for the observed data. That is, if the prediction and observed value are close, they will share the same intensity of blue -- that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well well the regression tree using `rpart` captures the structure of the data.
+
+In this case, we see that most observed `mpg` values fall relatively close to the predicted region averages, suggesting that `mod3` generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be a lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) are also relatively close to the predicted value of 29 miles per gallon. 
+
+#### Changing the Plot Color
+
+Suppose a user really doesn't like the color blue and doesn't want the alternative visualization to be shaded in with blue. I apologize to that person, but blue is my favorite color -- and so, if they want to get rid of the blue, they have to remake the chart from scratch. Luckily, this isn't that difficult if we just extract the data frame used to make the graph with the `type = 2` argument in the `alt_viz` function. Once that's done, we just need to replot with the similar code that modifies the color (let's say to black and white). 
+
+```{r}
+# extract the regions
+regions <- alt_viz(mod1, type = 2)
+
+# replot the regions with the new color
+ggplot(regions) +
+    geom_rect(aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = pred), color = "black", alpha = 0.5) +
+    geom_text(aes(x = (xmin + xmax)/2, y = (ymin + ymax)/2, label = pred), size = 3.5) +
+    labs(x = "Hits", y = "Years") +
+    scale_fill_gradient(low = "black", high = "white") +
+    theme_minimal() +
+    theme(legend.position = "none")
+```
+
+
