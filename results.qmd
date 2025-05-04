@@ -1,1 +1,109 @@
 # Results
+
+In this section, we'll concisely outline the usage of the `alt_viz` function that we described in the previous section. The goal is to provide mock R Documentation for this function that mirrors that provided for base `R` or CRAN functions (though this function isn't published anywhere yet) and illustrate it's usage with examples from a variety of datasets.
+
+```{r, include = FALSE}
+library(tidyverse)
+alt_viz <- function(mod, type = 1) {
+  names <- unique(mod$frame$var)
+  names <- names[names != "<leaf>"]
+  
+  if (length(names) == 1) {
+    xname <- names[1]
+    yname <- NULL
+  } else {
+    yname <- names[1]
+    xname <- names[2]
+  }
+  
+  modelname <- mod$call$data
+  leaf <- rownames(mod$frame[mod$frame$var == "<leaf>", ])
+  paths <- path.rpart(mod, nodes = leaf, print.it = FALSE)
+  
+  get_bounds <- function(leaf_paths) {
+    data <- get(modelname)
+    xvals <- data[[xname]]
+    
+    if (!is.null(yname)) {
+      yvals <- data[[yname]]
+    } else {
+      yvals <- rep(1, length(xvals))
+    }
+    
+    x_min <- ifelse(min(xvals) >= 0, 0, min(xvals)) ; x_max <- max(xvals)
+    y_min <- ifelse(min(yvals) >= 0, 0, min(yvals)) ; y_max <- max(yvals)
+    
+    for (i in leaf_paths) {
+      i <- gsub(" ", "", i)
+      if (grepl(paste0("^", xname, "<"), i)) x_max <- round(min(x_max, as.numeric(sub(paste0(xname, "<"), "", i))), 1)
+      if (grepl(paste0("^", xname, ">="), i)) x_min <- round(max(x_min, as.numeric(sub(paste0(xname, ">="), "", i))), 1)
+      if (!is.null(yname)) {
+        if (grepl(paste0("^", yname, "<"), i)) y_max <- round(min(y_max, as.numeric(sub(paste0(yname, "<"), "", i))), 1)
+        if (grepl(paste0("^", yname, ">="), i)) y_min <- round(max(y_min, as.numeric(sub(paste0(yname, ">="), "", i))), 1)
+      }
+    }
+    return(c(x_min, x_max, y_min, y_max))
+  }
+  
+  bounds_list <- lapply(paths, get_bounds)
+  bounds_df <- as.data.frame(do.call(rbind, bounds_list))
+  colnames(bounds_df) <- c("xmin", "xmax", "ymin", "ymax")
+  
+  leaf_preds <- mod$frame[mod$frame$var == "<leaf>", "yval"]
+  regions <- bounds_df |> mutate(pred = round(leaf_preds, 1)) |> tibble()
+  
+  plot <- ggplot(regions) +
+    geom_rect(aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = pred), color = "black", alpha = 0.5) +
+    geom_text(aes(x = (xmin + xmax)/2, y = (ymin + ymax)/2, label = pred), size = 3.5) +
+    labs(x = xname, y = ifelse(is.null(yname), "", yname)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  if (type == 1) {
+    print(plot)
+  } else if (type == 2) {
+    print(regions)
+  } else if (type == 3) {
+    print(plot); print(regions)
+  } else {
+    stop("Invalid `type` argument. Must be 1 (plot), 2 (data), or 3 (both).")
+  }
+}
+```
+
+## Mock R Documentation
+
+### Description
+
+Creates an alternative two dimensional visualization for decision trees built using the [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) package. Instead of displaying the tree structure with nodes and branches, this function maps the decision splits of at most two predictors directly onto a predictor space, dividing it into rectangular prediction regions.
+
+### Usage
+
+```{r, eval = FALSE}
+alt_viz(mod, type = 1)
+```
+
+### Arguments
+
+Name | Description
+------------- | -------------
+`mod`  | A fitted [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) regression tree model object. The tree model should include no more than two predictors.
+`type` | An integer (with default 1) that specifies the type of plot. Possible values: <br> **1** returns only the plot <br> **2** returns only the data frame with prediction region bounds and prediction values <br> **3** returns both the plot and data frame
+
+### Details
+
+This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not intended for classification trees.
+
+The visualization works by extracting the sequence of decision splits that lead to each leaf node, then calculating the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.
+
+The function requires that the original dataset used to fit the model is still loaded in memory, as it is referenced when extracting variable ranges.
+
+The [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) and [`tidyverse`](https://www.tidyverse.org/packages/) packages must be loaded prior to using this function.
+
+## Examples of Usage
+
+### Creating Plots
+
+### Changing the Output
+
+### Creative Usages

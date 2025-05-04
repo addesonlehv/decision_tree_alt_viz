@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -144,8 +178,26 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#mock-r-documentation" id="toc-mock-r-documentation" class="nav-link active" data-scroll-target="#mock-r-documentation"><span class="header-section-number">3.1</span> Mock R Documentation</a>
+  <ul class="collapse">
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description"><span class="header-section-number">3.1.1</span> Description</a></li>
+  <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage"><span class="header-section-number">3.1.2</span> Usage</a></li>
+  <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments"><span class="header-section-number">3.1.3</span> Arguments</a></li>
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details"><span class="header-section-number">3.1.4</span> Details</a></li>
+  </ul></li>
+  <li><a href="#examples-of-usage" id="toc-examples-of-usage" class="nav-link" data-scroll-target="#examples-of-usage"><span class="header-section-number">3.2</span> Examples of Usage</a>
+  <ul class="collapse">
+  <li><a href="#creating-plots" id="toc-creating-plots" class="nav-link" data-scroll-target="#creating-plots"><span class="header-section-number">3.2.1</span> Creating Plots</a></li>
+  <li><a href="#changing-the-output" id="toc-changing-the-output" class="nav-link" data-scroll-target="#changing-the-output"><span class="header-section-number">3.2.2</span> Changing the Output</a></li>
+  <li><a href="#creative-usages" id="toc-creative-usages" class="nav-link" data-scroll-target="#creative-usages"><span class="header-section-number">3.2.3</span> Creative Usages</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/edit/main/results.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -169,8 +221,62 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>In this section, we’ll concisely outline the usage of the <code>alt_viz</code> function that we described in the previous section. The goal is to provide mock R Documentation for this function that mirrors that provided for base <code>R</code> or CRAN functions (though this function isn’t published anywhere yet) and illustrate it’s usage with examples from a variety of datasets.</p>
+<section id="mock-r-documentation" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="mock-r-documentation"><span class="header-section-number">3.1</span> Mock R Documentation</h2>
+<section id="description" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="description"><span class="header-section-number">3.1.1</span> Description</h3>
+<p>Creates an alternative two dimensional visualization for decision trees built using the <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> package. Instead of displaying the tree structure with nodes and branches, this function maps the decision splits of at most two predictors directly onto a predictor space, dividing it into rectangular prediction regions.</p>
+</section>
+<section id="usage" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="usage"><span class="header-section-number">3.1.2</span> Usage</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod, <span class="at">type =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="arguments" class="level3" data-number="3.1.3">
+<h3 data-number="3.1.3" class="anchored" data-anchor-id="arguments"><span class="header-section-number">3.1.3</span> Arguments</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mod</code></td>
+<td>A fitted <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> regression tree model object. The tree model should include no more than two predictors.</td>
+</tr>
+<tr class="even">
+<td><code>type</code></td>
+<td>An integer (with default 1) that specifies the type of plot. Possible values: <br> <strong>1</strong> returns only the plot <br> <strong>2</strong> returns only the data frame with prediction region bounds and prediction values <br> <strong>3</strong> returns both the plot and data frame</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="details" class="level3" data-number="3.1.4">
+<h3 data-number="3.1.4" class="anchored" data-anchor-id="details"><span class="header-section-number">3.1.4</span> Details</h3>
+<p>This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not intended for classification trees.</p>
+<p>The visualization works by extracting the sequence of decision splits that lead to each leaf node, then calculating the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.</p>
+<p>The function requires that the original dataset used to fit the model is still loaded in memory, as it is referenced when extracting variable ranges.</p>
+<p>The <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> and <a href="https://www.tidyverse.org/packages/"><code>tidyverse</code></a> packages must be loaded prior to using this function.</p>
+</section>
+</section>
+<section id="examples-of-usage" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="examples-of-usage"><span class="header-section-number">3.2</span> Examples of Usage</h2>
+<section id="creating-plots" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="creating-plots"><span class="header-section-number">3.2.1</span> Creating Plots</h3>
+</section>
+<section id="changing-the-output" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="changing-the-output"><span class="header-section-number">3.2.2</span> Changing the Output</h3>
+</section>
+<section id="creative-usages" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="creative-usages"><span class="header-section-number">3.2.3</span> Creative Usages</h3>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -613,7 +719,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/edit/main/results.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/edit/main/results.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/addesonlehv/decision_tree_alt_viz/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>This book was built with <a href="https://quarto.org/">Quarto</a>.</p>
 </div>

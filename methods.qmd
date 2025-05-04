@@ -95,7 +95,7 @@ The code uses the `frame` of the model created using `rpart` in order to identif
 
 ### Writing and Running a Function to Create Bounds
 
-Having done this, we can now define a helper function called `get_bounds` that takes a list of decision split conditions (for a single terminal node in a decision tree) and returns the rectangular boundaries -- the minimum and maximum values -- for the two predictor variables involved. 
+Having done this, we can now define a helper function called `get_bounds` that takes a list of decision split conditions (for a single leaf node in a decision tree) and returns the rectangular boundaries -- the minimum and maximum values -- for the two predictor variables involved. 
 
 ```{r, eval = FALSE}
 # function to create bounds 
@@ -125,7 +125,7 @@ Having done this, we can now define a helper function called `get_bounds` that t
   }
 ```
 
-That is, we begin with the individual terminal nodes and their corresponding predicted values. Then, after examining the split conditions that lead to each leaf, we determine the bounds of each predictor variable we can use to define the coordinates of the rectangles used in the graph. This contrasts with a more “top-down” approach, where one might start with the decision splits and work forward to identify the resulting prediction regions.
+That is, we begin with the individual leaf nodes and their corresponding predicted values. Then, after examining the split conditions that lead to each leaf, we determine the bounds of each predictor variable we can use to define the coordinates of the rectangles used in the graph. This contrasts with a more “top-down” approach, where one might start with the decision splits and work forward to identify the resulting prediction regions.
 
 The function first pulls the original dataset used to fit the model and extracts the values of the predictor variables. It assigns these to `xvals` and, if a second predictor is needed, to `yvals`; otherwise, it fills `yvals` with a constant (1, for the sake of simplicity) so that the function can still compute rectangular regions in the case that only one predictor is important.
 
