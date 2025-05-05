@@ -1,6 +1,6 @@
 # Results
 
-In this section, we'll concisely outline the usage of the `alt_viz` function that we described in the previous section. The goal is to provide mock R Documentation for this function that mirrors that provided for base `R` or CRAN functions (though this function isn't published anywhere yet) and illustrate it's usage with examples from a variety of datasets.
+In this section, we'll concisely outline the usage of the `alt_viz` function that we described in the previous section. The goal is to provide mock R Documentation for this function that mirrors that provided for base `R` or CRAN functions (though this function isn't published anywhere yet) and illustrate its usage with examples from a variety of datasets.
 
 ```{r, include = FALSE}
 library(tidyverse)
@@ -93,7 +93,7 @@ alt_viz(mod, type = 1)
 
 ### Details
 
-This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necesssarily intended for classification trees.
+This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necessarily intended for classification trees.
 
 The visualization works by extracting the sequence of decision splits that lead to each leaf node, then calculating the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.
 
@@ -180,7 +180,7 @@ mod5 <- rpart(mpg ~ am + qsec, data = mtcars, cp = 0.01)
 alt_viz(mod5)
 ```
 
-Here, only the `am` variable (which takes 0 if the car is automatic and 1 if the car is manual) is important. As we can see, the alternative visualization is helpful to the extent that we know if `am` is less than 0.5, it's 0 and thus classified as automatic. If it's more than 0.5, it's 1 and thus classified as manual. Therefore, if a car falls into the automatic prediction region (the one to the left in gray), the predict miles per gallon is 17.1 while it's 24.4 miles per gallon if a car falls into the manual prediction region (the one to the right in blue).
+Here, only the `am` variable (which takes 0 if the car is automatic and 1 if the car is manual) is important. As we can see, the alternative visualization is helpful to the extent that we know if `am` is less than 0.5, it's 0 and thus classified as automatic. If it's more than 0.5, it's 1 and thus classified as manual. Therefore, if a car falls into the automatic prediction region (the one to the left in gray), the predicted miles per gallon is 17.1 while it's 24.4 miles per gallon if a car falls into the manual prediction region (the one to the right in blue).
 
 #### Binary Outcome: Kyphosis (`Kyphosis`) Dataset
 
@@ -237,7 +237,7 @@ alt_viz(mod3) +
             vjust = -0.7, size = 2.7641, color = "firebrick4")
 ```
 
-Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue -- that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well well the regression tree using `rpart` captures the structure of the data.
+Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue -- that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well the regression tree using `rpart` captures the structure of the data.
 
 In this case, we see that most observed `mpg` values fall relatively close to the predicted region averages, suggesting that `mod3` generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be a lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) are also relatively close to the predicted value of 29 miles per gallon. 
 

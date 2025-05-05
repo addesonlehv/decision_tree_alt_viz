@@ -23,7 +23,7 @@ With this general approach in mind, we ultimately know what goal we are aiming f
 
 ### Housekeeping
 
-The first step is to simply set up the function. We will call our function `alt_viz` (short for alternative visualization) and it will take two inputs. The first input, `mod`, is a regression model that is created using the the `rpart` function in the `rpart` package -- thus making the `rpart` package a requirement for using the function. The second input, `type`, is a numeric value that corresponds to 1, 2, or 3. We'll talk about this more later, but it allows the user to control what type of output they receive from running the function. This is the first line of code of our function:
+The first step is to simply set up the function. We will call our function `alt_viz` (short for alternative visualization) and it will take two inputs. The first input, `mod`, is a regression model that is created using the `rpart` function in the `rpart` package -- thus making the `rpart` package a requirement for using the function. The second input, `type`, is a numeric value that corresponds to 1, 2, or 3. We'll talk about this more later, but it allows the user to control what type of output they receive from running the function. This is the first line of code of our function:
 
 ```{r, eval = FALSE}
 # calling the function
@@ -43,7 +43,7 @@ This sequence should tell us everything that we need to know about the split dec
 
 * Turn the sequencing rules into a vector that contains the minimum and maximum values for the `Hits` and `Years` predictors. For example, we know that the minimum value for `Hits` in this prediction region is 50.5 and the maximum value is 117.5. Some additional points to consider:
 
-  * If there is more than one lower or upper bound conditions, like $Years \geq 4.5$ and $Years \geq 6.5$, then we need to keep the more restrictive condition -- $Years \geq 6.5$, in this instance -- since it defines a narrower region.
+  * If there are more than one lower or upper bound conditions, like $Years \geq 4.5$ and $Years \geq 6.5$, then we need to keep the more restrictive condition -- $Years \geq 6.5$, in this instance -- since it defines a narrower region.
   
   * If there is no explicitly specified inequality, like $Years < {}...{}$, then we should assume that there is no upper or lower constraint in that direction and, thus, should fall back on the reasonable default of the maximum or minimum value of the dataset.
   
@@ -81,7 +81,7 @@ The function first extracts the list of names of the predictors (like `Years` an
 
 Then, we want to account for the fact that even if we include two predictors in our regression model, perhaps only one of them is actually important for splits. The `if...else` statement assigns the vertical predictor value (`yname`) to `NULL`. We'll deal with this part more later.
 
-Finally, we need to extract the name of the original dataset that the model used. As we mentioned, when we have no specified upper or lower constraint, then model will default to the maximum or minimum value of the dataset. This means we need to be able to access the original dataset -- which means we need the name of it, too.
+Finally, we need to extract the name of the original dataset that the model used. As we mentioned, when we have no specified upper or lower constraint, then the model will default to the maximum or minimum value of the dataset. This means we need to be able to access the original dataset -- which means we need the name of it, too.
 
 Next, we need to identify only the leaf nodes and have the `path.rpart` function return the sequence of split conditions that lead to each one. We do that with the following code:
 
@@ -164,7 +164,7 @@ The first step is simply to turn the `list` that we made previously with the `la
 
 ### Plotting the Alternative Visualization
 
-We're very close to having our alternative visualization for decision trees! The final major step is to take the data frame that we just created and using `geom_rect` to create the plot. The code for the plot is shown below:
+We're very close to having our alternative visualization for decision trees! The final major step is to take the data frame that we just created and use `geom_rect` to create the plot. The code for the plot is shown below:
 
 ```{r, eval = FALSE}
 # plotting the alternative visualization
@@ -180,7 +180,7 @@ Besides using the values in the columns from the data frame (called `regions`) t
 
 ### Printing the Results
 
-The very last step in creating this function is to control what returned to the user. That is, we want to give the user some flexibility: perhaps some users want alternative visualization, while others want just the data frame that contains the predictions and minimum and maximum values. The following code executes how results are printed:
+The very last step in creating this function is to control what is returned to the user. That is, we want to give the user some flexibility: perhaps some users want alternative visualization, while others want just the data frame that contains the predictions and minimum and maximum values. The following code executes how results are printed:
 
 ```{r, eval = FALSE}
 # control the printing of results

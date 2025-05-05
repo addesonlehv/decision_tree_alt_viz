@@ -271,7 +271,7 @@ window.Quarto = {
 <p>With this general approach in mind, we ultimately know what goal we are aiming for: some sort of <code>geom_rect</code> (rectangle) function that makes a bunch of rectangles based on the coordinates set by the decision split bounds. Thus, we first need to somehow extract each prediction region’s decision split bounds and each region’s corresponding prediction. Before we begin though, we need to do a little bit of “housekeeping” to set up the function and get the information that we need.</p>
 <section id="housekeeping" class="level3" data-number="2.2.1">
 <h3 data-number="2.2.1" class="anchored" data-anchor-id="housekeeping"><span class="header-section-number">2.2.1</span> Housekeeping</h3>
-<p>The first step is to simply set up the function. We will call our function <code>alt_viz</code> (short for alternative visualization) and it will take two inputs. The first input, <code>mod</code>, is a regression model that is created using the the <code>rpart</code> function in the <code>rpart</code> package – thus making the <code>rpart</code> package a requirement for using the function. The second input, <code>type</code>, is a numeric value that corresponds to 1, 2, or 3. We’ll talk about this more later, but it allows the user to control what type of output they receive from running the function. This is the first line of code of our function:</p>
+<p>The first step is to simply set up the function. We will call our function <code>alt_viz</code> (short for alternative visualization) and it will take two inputs. The first input, <code>mod</code>, is a regression model that is created using the <code>rpart</code> function in the <code>rpart</code> package – thus making the <code>rpart</code> package a requirement for using the function. The second input, <code>type</code>, is a numeric value that corresponds to 1, 2, or 3. We’ll talk about this more later, but it allows the user to control what type of output they receive from running the function. This is the first line of code of our function:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calling the function</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>alt_viz <span class="ot">&lt;-</span> <span class="cf">function</span>(mod, <span class="at">type =</span> <span class="dv">1</span>) {</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -284,7 +284,7 @@ window.Quarto = {
 <ul>
 <li><p>Turn the sequencing rules into a vector that contains the minimum and maximum values for the <code>Hits</code> and <code>Years</code> predictors. For example, we know that the minimum value for <code>Hits</code> in this prediction region is 50.5 and the maximum value is 117.5. Some additional points to consider:</p>
 <ul>
-<li><p>If there is more than one lower or upper bound conditions, like <span class="math inline">\(Years \geq 4.5\)</span> and <span class="math inline">\(Years \geq 6.5\)</span>, then we need to keep the more restrictive condition – <span class="math inline">\(Years \geq 6.5\)</span>, in this instance – since it defines a narrower region.</p></li>
+<li><p>If there are more than one lower or upper bound conditions, like <span class="math inline">\(Years \geq 4.5\)</span> and <span class="math inline">\(Years \geq 6.5\)</span>, then we need to keep the more restrictive condition – <span class="math inline">\(Years \geq 6.5\)</span>, in this instance – since it defines a narrower region.</p></li>
 <li><p>If there is no explicitly specified inequality, like <span class="math inline">\(Years &lt; {}...{}\)</span>, then we should assume that there is no upper or lower constraint in that direction and, thus, should fall back on the reasonable default of the maximum or minimum value of the dataset.</p></li>
 <li><p>If we are interested in generalizability to new datasets (which we are), then we need to design the code logic such that it doesn’t rely on any specific dataset predictor names. Rather, it should flexibly adapt to new trees and new data.</p></li>
 </ul></li>
@@ -315,7 +315,7 @@ window.Quarto = {
 </div>
 <p>The function first extracts the list of names of the predictors (like <code>Years</code> and <code>Hits</code>) by looking at what variable names are produced. We also need to remove the <code>&lt;leaf&gt;</code> name from this list as it’s not a predictor.</p>
 <p>Then, we want to account for the fact that even if we include two predictors in our regression model, perhaps only one of them is actually important for splits. The <code>if...else</code> statement assigns the vertical predictor value (<code>yname</code>) to <code>NULL</code>. We’ll deal with this part more later.</p>
-<p>Finally, we need to extract the name of the original dataset that the model used. As we mentioned, when we have no specified upper or lower constraint, then model will default to the maximum or minimum value of the dataset. This means we need to be able to access the original dataset – which means we need the name of it, too.</p>
+<p>Finally, we need to extract the name of the original dataset that the model used. As we mentioned, when we have no specified upper or lower constraint, then the model will default to the maximum or minimum value of the dataset. This means we need to be able to access the original dataset – which means we need the name of it, too.</p>
 <p>Next, we need to identify only the leaf nodes and have the <code>path.rpart</code> function return the sequence of split conditions that lead to each one. We do that with the following code:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># finding the sequences of the leaf nodes</span></span>
@@ -385,7 +385,7 @@ window.Quarto = {
 </section>
 <section id="plotting-the-alternative-visualization" class="level3" data-number="2.2.5">
 <h3 data-number="2.2.5" class="anchored" data-anchor-id="plotting-the-alternative-visualization"><span class="header-section-number">2.2.5</span> Plotting the Alternative Visualization</h3>
-<p>We’re very close to having our alternative visualization for decision trees! The final major step is to take the data frame that we just created and using <code>geom_rect</code> to create the plot. The code for the plot is shown below:</p>
+<p>We’re very close to having our alternative visualization for decision trees! The final major step is to take the data frame that we just created and use <code>geom_rect</code> to create the plot. The code for the plot is shown below:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting the alternative visualization</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(regions) <span class="sc">+</span></span>
@@ -399,7 +399,7 @@ window.Quarto = {
 </section>
 <section id="printing-the-results" class="level3" data-number="2.2.6">
 <h3 data-number="2.2.6" class="anchored" data-anchor-id="printing-the-results"><span class="header-section-number">2.2.6</span> Printing the Results</h3>
-<p>The very last step in creating this function is to control what returned to the user. That is, we want to give the user some flexibility: perhaps some users want alternative visualization, while others want just the data frame that contains the predictions and minimum and maximum values. The following code executes how results are printed:</p>
+<p>The very last step in creating this function is to control what is returned to the user. That is, we want to give the user some flexibility: perhaps some users want alternative visualization, while others want just the data frame that contains the predictions and minimum and maximum values. The following code executes how results are printed:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># control the printing of results</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (type <span class="sc">==</span> <span class="dv">1</span>) {</span>
