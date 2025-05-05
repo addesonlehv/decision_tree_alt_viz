@@ -342,17 +342,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Here, only the horsepower variable is important for splitting. Thus, the prediction is 25 miles per gallon if the horsepower is less than 118 and 15.8 miles per gallon if the horsepower is more than 118. The y-axis is not meaningful, except to maintain the rectangular shape.</p>
+<p>This is also a good opportunity to show that the <code>alt_viz</code> function doesn’t <em>require</em> a <code>rpart</code> model with two predictors (remember, needing <em>at most</em> two predictors doesn’t mean we need <em>exactly</em> two predictors). For instance, we could get rid of the <code>qsec</code> predictor and just use the <code>hp</code> predictor (that is, we’ve created a model with just one predictor) and get a similar graph.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mod4b <span class="ot">&lt;-</span> <span class="fu">rpart</span>(mpg <span class="sc">~</span> hp, <span class="at">data =</span> mtcars, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod4b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="binary-predictor-fuel-efficiency-mtcars-dataset" class="level4" data-number="3.2.2.2">
 <h4 data-number="3.2.2.2" class="anchored" data-anchor-id="binary-predictor-fuel-efficiency-mtcars-dataset"><span class="header-section-number">3.2.2.2</span> Binary Predictor: Fuel Efficiency (<code>mtcars</code>) Dataset</h4>
 <p>As mentioned, binary predictors are not recommended for the dataset. However, if the binary predictor is coded with either 0 or 1, then it is possible to make the alternative visualization.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mod5 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(mpg <span class="sc">~</span> am <span class="sc">+</span> qsec, <span class="at">data =</span> mtcars, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mod5 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(mpg <span class="sc">~</span> am <span class="sc">+</span> qsec, <span class="at">data =</span> mtcars, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -363,16 +375,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 data-number="3.2.2.3" class="anchored" data-anchor-id="binary-outcome-kyphosis-kyphosis-dataset"><span class="header-section-number">3.2.2.3</span> Binary Outcome: Kyphosis (<code>Kyphosis</code>) Dataset</h4>
 <p>The alternative visualization function really isn’t designed for classification decision trees with binary outcomes and is not recommended. However, if we recode a binary outcome to have either 0 or 1, we can make the alternative visualization.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># recode the outcome</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> kyphosis <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">bin =</span> <span class="fu">ifelse</span>(Kyphosis <span class="sc">==</span> <span class="st">"absent"</span>, <span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create the alternative visualization</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>mod6 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(bin <span class="sc">~</span> Number <span class="sc">+</span> Start, <span class="at">data =</span> data, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># recode the outcome</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> kyphosis <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">bin =</span> <span class="fu">ifelse</span>(Kyphosis <span class="sc">==</span> <span class="st">"absent"</span>, <span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create the alternative visualization</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>mod6 <span class="ot">&lt;-</span> <span class="fu">rpart</span>(bin <span class="sc">~</span> Number <span class="sc">+</span> Start, <span class="at">data =</span> data, <span class="at">cp =</span> <span class="fl">0.01</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -386,7 +398,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-frame-only-type-2" class="level4" data-number="3.2.3.1">
 <h4 data-number="3.2.3.1" class="anchored" data-anchor-id="data-frame-only-type-2"><span class="header-section-number">3.2.3.1</span> Data Frame Only (<code>type = 2</code>)</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 7 × 5
    xmin  xmax  ymin  ymax  pred
@@ -404,11 +416,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-frame-and-plot-together-type-3" class="level4" data-number="3.2.3.2">
 <h4 data-number="3.2.3.2" class="anchored" data-anchor-id="data-frame-and-plot-together-type-3"><span class="header-section-number">3.2.3.2</span> Data Frame and Plot Together (<code>type = 3</code>)</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -429,7 +441,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="errors-type-anything-but-1-2-or-3" class="level4" data-number="3.2.3.3">
 <h4 data-number="3.2.3.3" class="anchored" data-anchor-id="errors-type-anything-but-1-2-or-3"><span class="header-section-number">3.2.3.3</span> Errors (<code>type = anything but 1, 2, or 3</code>)</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">1467</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(<span class="at">mod =</span> mod1, <span class="at">type =</span> <span class="dv">1467</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in alt_viz(mod = mod1, type = 1467): Invalid `type` argument. Must be 1 (plot), 2 (data), or 3 (both).</code></pre>
 </div>
@@ -442,45 +454,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 data-number="3.2.4.1" class="anchored" data-anchor-id="plot-actual-data-onto-predictor-space"><span class="header-section-number">3.2.4.1</span> Plot Actual Data onto Predictor Space</h4>
 <p>Suppose we want to compare the actual outcome value of each observed data point to the predicted region created with the <code>rpart</code> model. We can do this by plotting the individual, observed data points from the original dataset directly onto the predictor space created by our alternative visualization. This enables us to determine how well each observed point aligns with the predicted value (based on its region) – something which a classic decision tree can’t do.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># only label 30% of the data points</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1467</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>label_subset <span class="ot">&lt;-</span> mtcars <span class="sc">%&gt;%</span> <span class="fu">slice_sample</span>(<span class="at">prop =</span> <span class="fl">0.3</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod3) <span class="sc">+</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> mtcars, <span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y =</span> wt, <span class="at">color =</span> mpg), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> label_subset, <span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y =</span> wt, <span class="at">label =</span> <span class="fu">round</span>(mpg, <span class="dv">1</span>)), </span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.7</span>, <span class="at">size =</span> <span class="fl">2.7641</span>, <span class="at">color =</span> <span class="st">"firebrick4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># only label 30% of the data points</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1467</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>label_subset <span class="ot">&lt;-</span> mtcars <span class="sc">%&gt;%</span> <span class="fu">slice_sample</span>(<span class="at">prop =</span> <span class="fl">0.3</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">alt_viz</span>(mod3) <span class="sc">+</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> mtcars, <span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y =</span> wt, <span class="at">color =</span> mpg), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> label_subset, <span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y =</span> wt, <span class="at">label =</span> <span class="fu">round</span>(mpg, <span class="dv">1</span>)), </span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.7</span>, <span class="at">size =</span> <span class="fl">2.7641</span>, <span class="at">color =</span> <span class="st">"firebrick4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Here, we have the color vary (by the same color scale as the alternative visualization) for the observed data. That is, if the prediction and observed value are close, they will share the same intensity of blue – that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well well the regression tree using <code>rpart</code> captures the structure of the data.</p>
+<p>Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue – that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well well the regression tree using <code>rpart</code> captures the structure of the data.</p>
 <p>In this case, we see that most observed <code>mpg</code> values fall relatively close to the predicted region averages, suggesting that <code>mod3</code> generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be a lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) are also relatively close to the predicted value of 29 miles per gallon.</p>
 </section>
 <section id="changing-the-plot-color" class="level4" data-number="3.2.4.2">
 <h4 data-number="3.2.4.2" class="anchored" data-anchor-id="changing-the-plot-color"><span class="header-section-number">3.2.4.2</span> Changing the Plot Color</h4>
 <p>Suppose a user really doesn’t like the color blue and doesn’t want the alternative visualization to be shaded in with blue. I apologize to that person, but blue is my favorite color – and so, if they want to get rid of the blue, they have to remake the chart from scratch. Luckily, this isn’t that difficult if we just extract the data frame used to make the graph with the <code>type = 2</code> argument in the <code>alt_viz</code> function. Once that’s done, we just need to replot with the similar code that modifies the color (let’s say to black and white).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the regions</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>regions <span class="ot">&lt;-</span> <span class="fu">alt_viz</span>(mod1, <span class="at">type =</span> <span class="dv">2</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># replot the regions with the new color</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(regions) <span class="sc">+</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_rect</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> xmin, <span class="at">xmax =</span> xmax, <span class="at">ymin =</span> ymin, <span class="at">ymax =</span> ymax, <span class="at">fill =</span> pred), <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">x =</span> (xmin <span class="sc">+</span> xmax)<span class="sc">/</span><span class="dv">2</span>, <span class="at">y =</span> (ymin <span class="sc">+</span> ymax)<span class="sc">/</span><span class="dv">2</span>, <span class="at">label =</span> pred), <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Hits"</span>, <span class="at">y =</span> <span class="st">"Years"</span>) <span class="sc">+</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">high =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the regions</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>regions <span class="ot">&lt;-</span> <span class="fu">alt_viz</span>(mod1, <span class="at">type =</span> <span class="dv">2</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># replot the regions with the new color</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(regions) <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_rect</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> xmin, <span class="at">xmax =</span> xmax, <span class="at">ymin =</span> ymin, <span class="at">ymax =</span> ymax, <span class="at">fill =</span> pred), <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">x =</span> (xmin <span class="sc">+</span> xmax)<span class="sc">/</span><span class="dv">2</span>, <span class="at">y =</span> (ymin <span class="sc">+</span> ymax)<span class="sc">/</span><span class="dv">2</span>, <span class="at">label =</span> pred), <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Hits"</span>, <span class="at">y =</span> <span class="st">"Years"</span>) <span class="sc">+</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">high =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

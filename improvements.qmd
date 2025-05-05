@@ -1,6 +1,118 @@
 # Future Directions
 
-- make coding better/more efficient -- no nested statements
-- fixing errors for the edge cases
-- putting this into a package
-- allowing for more user customization
+In this section, we'll discuss future directions that this project could go in, as the `alt_viz` function is by no means a polished product. Rather, this is a pilot project -- a proof of concept, if you will -- that I hope to eventually come back to (perhaps when I get tired of reading cases and writing briefs at law school next year). For now, though, here are the areas that would be worth revisiting for future iterations of this project. This isn't necessarily an exhaustive list but merely some ideas.
+
+## Improve Code Efficiency
+
+While the code underlying the `alt_viz` function runs well, it could benefit from increased efficiency. That is, there are a couple of areas where we could "clean-up" the code, making it more concise and -- more importantly -- more efficient. 
+
+Perhaps the best example of where the code could be improved is in eventually eliminating the use of nested helper functions. As we might recall from our discussion in the “Methods” section, the `alt_viz` function relies on a new helper function that we created called `get_bounds` to extract rectangular region boundaries from the sequences produced by `path.rpart`. However, to improve both the clarity and efficiency of the code, the function would benefit from further modularization: organizing the code into separate, top-level functions rather than nesting them. This approach is widely considered to be coding best practice because it improves efficiency, enhances the readability of the function’s code, simplifies testing and debugging, and makes the codebase easier to maintain and build upon in the future. Therefore, future iterations of this project would want to try to "unnest" the `get_bounds` function from the `alt_viz` function and keep them separate instead.
+
+## Handle Edge Cases More Robustly
+
+We discussed some of these "edge cases" already, but there are certainly a couple of more that immediately come to mind (and perhaps others that haven't come to mind yet, either!). Most obviously, the `alt_viz` function doesn't really what to do when we have a model with more than two predictors.
+
+Sometimes, the model is able to produce an accurate alternative visualization if only two of the predictors are important. Indeed, the function can still produce an accurate and interpretable visualization if the model relies primarily on two predictors (that is, only two predictors are important for splits). In these cases, the output remains interpretable because the splits based on two predictors is consistent with the two dimensional predictor space the alternative visualization is intended to represent. This situation is not ideal -- because, as a best practice, we really shouldn't be making the alternative visualizations with models that have more than 2 predictors in the first place.
+
+The real problem, however, is if a user were to create a model with more than two predictors and more than two predictors were important for data splits. At that point, the `alt_viz` function has no way to represent the higher dimensional structure (imagine trying to draw a four dimensional space -- impossible). Consequently, any resulting visualization that the `alt_viz` function produces under these circumstances would be misleading or incomplete. For example, in the following model, the `Wind`, `Temp`, and `Solar.R` variables are all important for creating splits in order to predict the `Ozone` level. The resulting alternative visualization function is weird.
+
+```{r, include = FALSE}
+library(tidyverse)
+library(rpart)
+alt_viz <- function(mod, type = 1) {
+  names <- unique(mod$frame$var)
+  names <- names[names != "<leaf>"]
+  
+  if (length(names) == 1) {
+    xname <- names[1]
+    yname <- NULL
+  } else {
+    yname <- names[1]
+    xname <- names[2]
+  }
+  
+  modelname <- mod$call$data
+  leaf <- rownames(mod$frame[mod$frame$var == "<leaf>", ])
+  paths <- path.rpart(mod, nodes = leaf, print.it = FALSE)
+  
+  get_bounds <- function(leaf_paths) {
+    data <- get(modelname)
+    xvals <- data[[xname]]
+    
+    if (!is.null(yname)) {
+      yvals <- data[[yname]]
+    } else {
+      yvals <- rep(1, length(xvals))
+    }
+    
+    x_min <- ifelse(min(xvals) >= 0, 0, min(xvals)) ; x_max <- max(xvals)
+    y_min <- ifelse(min(yvals) >= 0, 0, min(yvals)) ; y_max <- max(yvals)
+    
+    for (i in leaf_paths) {
+      i <- gsub(" ", "", i)
+      if (grepl(paste0("^", xname, "<"), i)) x_max <- round(min(x_max, as.numeric(sub(paste0(xname, "<"), "", i))), 1)
+      if (grepl(paste0("^", xname, ">="), i)) x_min <- round(max(x_min, as.numeric(sub(paste0(xname, ">="), "", i))), 1)
+      if (!is.null(yname)) {
+        if (grepl(paste0("^", yname, "<"), i)) y_max <- round(min(y_max, as.numeric(sub(paste0(yname, "<"), "", i))), 1)
+        if (grepl(paste0("^", yname, ">="), i)) y_min <- round(max(y_min, as.numeric(sub(paste0(yname, ">="), "", i))), 1)
+      }
+    }
+    return(c(x_min, x_max, y_min, y_max))
+  }
+  
+  bounds_list <- lapply(paths, get_bounds)
+  bounds_df <- as.data.frame(do.call(rbind, bounds_list))
+  colnames(bounds_df) <- c("xmin", "xmax", "ymin", "ymax")
+  
+  leaf_preds <- mod$frame[mod$frame$var == "<leaf>", "yval"]
+  regions <- bounds_df |> mutate(pred = round(leaf_preds, 1)) |> tibble()
+  
+  plot <- ggplot(regions) +
+    geom_rect(aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = pred), color = "black", alpha = 0.5) +
+    geom_text(aes(x = (xmin + xmax)/2, y = (ymin + ymax)/2, label = pred), size = 3.5) +
+    labs(x = xname, y = ifelse(is.null(yname), "", yname)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  if (type == 1) {
+    return(plot)
+  } else if (type == 2) {
+    return(regions)
+  } else if (type == 3) {
+    print(plot); print(regions)
+  } else {
+    stop("Invalid `type` argument. Must be 1 (plot), 2 (data), or 3 (both).")
+  }
+}
+```
+
+```{r, echo = FALSE}
+library(ISLR2)
+Hitters <- Hitters |>
+  filter(!is.na(Salary)) |>
+  mutate(Logsal = log(Salary))
+```
+
+```{r}
+mod_bad <- rpart(Ozone ~ Wind + Temp + Solar.R, data = airquality, cp = 0.01)
+alt_viz(mod_bad)
+```
+
+As we can see, the fact that there are three important predictors for decision splits has made this alternative visualization clearly inaccurate. Most notably, in the bottom right most prediction region there are actually two predictions -- how are we supposed to interpret this? We can't.
+
+In this way, we can see how it would be helpful if the `alt_viz` function could help enforce the "at most two predictors" condition for the regression tree model. For future versions of the `alt_viz` function, it would be helpful if it could throw an error message in the event that a user tried to use the `alt_viz` function on an `rpart` model that had more than three predictors.
+
+Finally -- and we alluded to this earlier -- the other "edge case" that the `alt_viz` could handle better is binary variables. It would be nice for future versions of the `alt_viz` function to be able to better handle classification models or binary predictors that are not coded as either 0 or 1. Ideally, the `alt_viz` function would be able to recognize these types of variables and either convert them internally to 0 and 1, or the `alt_viz` function would be able to adapt the plotting logic accordingly.  But, if that isn't feasible, it would be helpful if the `alt_viz` model could output a clear and informative error message about the situation. Currently, attempting to run the `alt_viz` function on a regression tree model with binary predictors not coded as either 0 or 1 produces the following unhelpful message:
+
+```{r, error = TRUE}
+mod_bad2 <- rpart(Logsal ~ Hits + Division, data = Hitters, cp = 0.01)
+alt_viz(mod_bad2)
+```
+
+## Allow for Greater User Customization
+
+Currently, the user's ability to customize the output of the `alt_viz` function limited to the type of output (plot, data frame, or both). However, as we saw in the last example of the previous "Results" section, making any visual edits to the default alternative visualization -- such as changing the color, tick marks, or transparency, or adding titles, subtitles, captions, and other annotations -- is not currently possible. To make these desired changes, we have to call the raw data frame and then code the customized graph ourselves. Therefore, a future improvement would increase the user's ability to customize the alternative visualization within the `alt viz` function, without having to manually do it.
+
+## Publish the Function in a `R` Package
+
+Finally, the `alt_viz` function has utility beyond this project! The function could be helpful to statisticians, educators, or data analysts looking to visually interpret decision tree plots in a more intuitive way. The best and most straightforward way to enable these people to use the `alt_viz` function is to publish a `R` package that contains the `alt_viz` function. This way, the function would be readily accessible to those interested in using the function -- and those who could even contribute to it's continued development!

@@ -164,6 +164,13 @@ alt_viz(mod4)
 
 Here, only the horsepower variable is important for splitting. Thus, the prediction is 25 miles per gallon if the horsepower is less than 118 and 15.8 miles per gallon if the horsepower is more than 118. The y-axis is not meaningful, except to maintain the rectangular shape.
 
+This is also a good opportunity to show that the `alt_viz` function doesn't *require* a `rpart` model with two predictors (remember, needing *at most* two predictors doesn't mean we need *exactly* two predictors). For instance, we could get rid of the `qsec` predictor and just use the `hp` predictor (that is, we've created a model with just one predictor) and get a similar graph.
+
+```{r}
+mod4b <- rpart(mpg ~ hp, data = mtcars, cp = 0.01)
+alt_viz(mod4b)
+```
+
 #### Binary Predictor: Fuel Efficiency (`mtcars`) Dataset
 
 As mentioned, binary predictors are not recommended for the dataset. However, if the binary predictor is coded with either 0 or 1, then it is possible to make the alternative visualization.
@@ -230,7 +237,7 @@ alt_viz(mod3) +
             vjust = -0.7, size = 2.7641, color = "firebrick4")
 ```
 
-Here, we have the color vary (by the same color scale as the alternative visualization) for the observed data. That is, if the prediction and observed value are close, they will share the same intensity of blue -- that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well well the regression tree using `rpart` captures the structure of the data.
+Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue -- that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well well the regression tree using `rpart` captures the structure of the data.
 
 In this case, we see that most observed `mpg` values fall relatively close to the predicted region averages, suggesting that `mod3` generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be a lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) are also relatively close to the predicted value of 29 miles per gallon. 
 
