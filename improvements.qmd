@@ -1,6 +1,6 @@
 # Future Directions
 
-In this section, we'll discuss future directions that this project could go in, as the `alt_viz` function is by no means a polished product. Rather, this is a pilot project -- a proof of concept, if you will -- that I hope to eventually come back to. For now, though, here are the areas that would be worth revisiting for future iterations of this project. This isn't necessarily an exhaustive list but merely some ideas.
+In this section, we'll discuss future directions that this project could take, as the `alt_viz` function is by no means a polished product. Rather, this is a pilot project -- a proof of concept, if you will -- that I hope to eventually come back to. For now, though, here are the areas that would be worth revisiting for future iterations of this project. This isn't necessarily an exhaustive list but merely some ideas.
 
 ## Improve Code Efficiency
 

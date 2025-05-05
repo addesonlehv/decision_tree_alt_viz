@@ -2,7 +2,7 @@
 
 To conclude this project, let's return to the initial question motivating our research and provide a definitive answer to it:
 
-> To what extent can we use `R` to design a function that creates an alternative visualization for decision trees with one or two numerical predictors -- specifically, one that takes the statistical information typically used to build a conventional decision tree and instead maps the decision splits directly onto a predictor space?
+> To what extent can we use `R` to design a function that creates an alternative visualization for decision trees with one or two numeric predictors -- specifically, one that takes the statistical information typically used to build a conventional decision tree and instead maps the decision splits directly onto a predictor space?
 
 To put it simply, the answer is: yes, we can use `R` to build the alternative visualization. The `alt_viz` function produced is a working proof of concept that `R` is not just capable of this task, but that it does it pretty well! By using the `path.rpart` function, we can extract and leverage the statistical information typically used to build classic regression decision trees with the `rpart`function. More specifically, we can use the sequence of decision rules for each leaf node, reorganize those rules into rectangular coordinate bounds, and generate a clean visual representation of each prediction region. The end result is a function that automatically maps the decision splits of a regression tree model onto a predictor space (or provides a data frame containing the coordinates of the rectangular regions that comprise the predictor space). 
 

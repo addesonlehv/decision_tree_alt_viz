@@ -76,7 +76,7 @@ alt_viz <- function(mod, type = 1) {
 
 ### Description
 
-Creates an alternative two dimensional visualization for decision trees built using the [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) package. Instead of displaying the tree structure with nodes and branches, this function maps the decision splits of at most two predictors directly onto a predictor space, dividing it into rectangular prediction regions.
+Creates an alternative two dimensional visualization for decision trees built using the [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) package. Instead of displaying the tree structure with nodes and branches, this function maps the decision splits of at most two numeric predictors directly onto a predictor space, dividing it into rectangular prediction regions.
 
 ### Usage
 
@@ -88,14 +88,14 @@ alt_viz(mod, type = 1)
 
 | Name | Description |
 |------------------------------------|------------------------------------|
-| `mod` | A fitted [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) regression tree model object. The tree model should include no more than two predictors. |
-| `type` | An integer (with default 1) that specifies the type of plot. Possible values: <br> **1** returns only the plot <br> **2** returns only the data frame with prediction region bounds and prediction values <br> **3** returns both the plot and data frame |
+| `mod` | A fitted [`rpart`](https://cran.r-project.org/web/packages/rpart/rpart.pdf) regression tree model object. The tree model should include no more than two numeric predictors and one numeric outcome. |
+| `type` | An integer (with default 1) that specifies the type of output. Possible values: <br> **1** returns only the plot <br> **2** returns only the data frame with prediction region bounds and prediction values <br> **3** returns both the plot and data frame |
 
 ### Details
 
-This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necessarily intended for classification trees.
+This function is designed primarily for regression models with at most two numeric predictor variables and one numeric outcome. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necessarily intended for classification trees.
 
-The visualization works by extracting the sequence of decision splits that lead to each leaf node, then calculating the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.
+The visualization works by extracting the sequence of decision splits that lead to each leaf node, then determining the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.
 
 The function requires that the original dataset used to fit the model is still loaded in memory, as it is referenced when extracting variable ranges.
 
@@ -126,7 +126,7 @@ data("kyphosis")
 
 ### Creating Plots
 
-We display regression tree models for two different datasets and their corresponding plots created using the `alt_viz` function.
+We display regression tree models for three different datasets and their corresponding alternative visualization plots created using the `alt_viz` function.
 
 #### Hitters (`Hitters`) Dataset
 
@@ -151,7 +151,7 @@ alt_viz(mod3)
 
 ### Creating Plots: Edge Cases
 
-There are also a couple of edge cases -- where the data or model structure diverges from the ideal scenario of continuous predictors and outcomes -- that merit our discussion.
+There are also a couple of edge cases -- where the data or model structure diverges from the ideal scenario of continuous, numeric predictors and outcomes -- that merit our discussion.
 
 #### One Important Predictor: Fuel Efficiency (`mtcars`) Dataset
 
@@ -237,9 +237,9 @@ alt_viz(mod3) +
             vjust = -0.7, size = 2.7641, color = "firebrick4")
 ```
 
-Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue -- that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well the regression tree using `rpart` captures the structure of the data.
+Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue -- that is, for example, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well the regression tree model using `rpart` captures the structure of the data.
 
-In this case, we see that most observed `mpg` values fall relatively close to the predicted region averages, suggesting that `mod3` generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be a lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) are also relatively close to the predicted value of 29 miles per gallon. 
+In this case, we see that most observed `mpg` values fall relatively close to the predicted region averages, suggesting that `mod3` generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) there are also relatively close to the predicted value of 29 miles per gallon. 
 
 #### Changing the Plot Color
 

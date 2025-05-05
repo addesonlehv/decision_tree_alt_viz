@@ -227,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="3.1" class="anchored" data-anchor-id="mock-r-documentation"><span class="header-section-number">3.1</span> Mock R Documentation</h2>
 <section id="description" class="level3" data-number="3.1.1">
 <h3 data-number="3.1.1" class="anchored" data-anchor-id="description"><span class="header-section-number">3.1.1</span> Description</h3>
-<p>Creates an alternative two dimensional visualization for decision trees built using the <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> package. Instead of displaying the tree structure with nodes and branches, this function maps the decision splits of at most two predictors directly onto a predictor space, dividing it into rectangular prediction regions.</p>
+<p>Creates an alternative two dimensional visualization for decision trees built using the <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> package. Instead of displaying the tree structure with nodes and branches, this function maps the decision splits of at most two numeric predictors directly onto a predictor space, dividing it into rectangular prediction regions.</p>
 </section>
 <section id="usage" class="level3" data-number="3.1.2">
 <h3 data-number="3.1.2" class="anchored" data-anchor-id="usage"><span class="header-section-number">3.1.2</span> Usage</h3>
@@ -247,19 +247,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td><code>mod</code></td>
-<td>A fitted <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> regression tree model object. The tree model should include no more than two predictors.</td>
+<td>A fitted <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> regression tree model object. The tree model should include no more than two numeric predictors and one numeric outcome.</td>
 </tr>
 <tr class="even">
 <td><code>type</code></td>
-<td>An integer (with default 1) that specifies the type of plot. Possible values: <br> <strong>1</strong> returns only the plot <br> <strong>2</strong> returns only the data frame with prediction region bounds and prediction values <br> <strong>3</strong> returns both the plot and data frame</td>
+<td>An integer (with default 1) that specifies the type of output. Possible values: <br> <strong>1</strong> returns only the plot <br> <strong>2</strong> returns only the data frame with prediction region bounds and prediction values <br> <strong>3</strong> returns both the plot and data frame</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="details" class="level3" data-number="3.1.4">
 <h3 data-number="3.1.4" class="anchored" data-anchor-id="details"><span class="header-section-number">3.1.4</span> Details</h3>
-<p>This function is designed primarily for regression models with at most two numeric predictor variables. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necessarily intended for classification trees.</p>
-<p>The visualization works by extracting the sequence of decision splits that lead to each leaf node, then calculating the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.</p>
+<p>This function is designed primarily for regression models with at most two numeric predictor variables and one numeric outcome. Models should take this form for ideal use. If the model includes binary variables, they must be encoded as 0 or 1. The function is not necessarily intended for classification trees.</p>
+<p>The visualization works by extracting the sequence of decision splits that lead to each leaf node, then determining the coordinate bounds of the corresponding rectangular region in the predictor space. Each region is lightly shaded in color and labeled based on the leaf node’s predicted value.</p>
 <p>The function requires that the original dataset used to fit the model is still loaded in memory, as it is referenced when extracting variable ranges.</p>
 <p>The <a href="https://cran.r-project.org/web/packages/rpart/rpart.pdf"><code>rpart</code></a> and <a href="https://www.tidyverse.org/packages/"><code>tidyverse</code></a> packages must be loaded prior to using this function.</p>
 </section>
@@ -280,7 +280,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="creating-plots" class="level3" data-number="3.2.1">
 <h3 data-number="3.2.1" class="anchored" data-anchor-id="creating-plots"><span class="header-section-number">3.2.1</span> Creating Plots</h3>
-<p>We display regression tree models for two different datasets and their corresponding plots created using the <code>alt_viz</code> function.</p>
+<p>We display regression tree models for three different datasets and their corresponding alternative visualization plots created using the <code>alt_viz</code> function.</p>
 <section id="hitters-hitters-dataset" class="level4" data-number="3.2.1.1">
 <h4 data-number="3.2.1.1" class="anchored" data-anchor-id="hitters-hitters-dataset"><span class="header-section-number">3.2.1.1</span> Hitters (<code>Hitters</code>) Dataset</h4>
 <div class="cell">
@@ -326,7 +326,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="creating-plots-edge-cases" class="level3" data-number="3.2.2">
 <h3 data-number="3.2.2" class="anchored" data-anchor-id="creating-plots-edge-cases"><span class="header-section-number">3.2.2</span> Creating Plots: Edge Cases</h3>
-<p>There are also a couple of edge cases – where the data or model structure diverges from the ideal scenario of continuous predictors and outcomes – that merit our discussion.</p>
+<p>There are also a couple of edge cases – where the data or model structure diverges from the ideal scenario of continuous, numeric predictors and outcomes – that merit our discussion.</p>
 <section id="one-important-predictor-fuel-efficiency-mtcars-dataset" class="level4" data-number="3.2.2.1">
 <h4 data-number="3.2.2.1" class="anchored" data-anchor-id="one-important-predictor-fuel-efficiency-mtcars-dataset"><span class="header-section-number">3.2.2.1</span> One Important Predictor: Fuel Efficiency (<code>mtcars</code>) Dataset</h4>
 <p>In some cases, a regression tree might only use one of the predictors in the model. That is, one variable is important for splits. The model was designed to handle these situations.</p>
@@ -471,8 +471,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue – that is, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well the regression tree using <code>rpart</code> captures the structure of the data.</p>
-<p>In this case, we see that most observed <code>mpg</code> values fall relatively close to the predicted region averages, suggesting that <code>mod3</code> generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be a lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) are also relatively close to the predicted value of 29 miles per gallon.</p>
+<p>Here, we have the color vary for the observed data by the same color scale as the alternative visualization. That is, if the prediction and observed value are close, they will share the same intensity of blue – that is, for example, a lighter blue dot will correspond to a lighter blue region (and vice-versa). Additionally, we label some of the data points so we compare their exact observed value to their prediction region value. These help us to visually assess how well the regression tree model using <code>rpart</code> captures the structure of the data.</p>
+<p>In this case, we see that most observed <code>mpg</code> values fall relatively close to the predicted region averages, suggesting that <code>mod3</code> generally partitions the predictor space effectively. For example, if we look at the bottom light blue region, most of the data points that fall within that region tend to also be lighter blue. Furthermore, the labeled values (27.3 and 30.4 miles per gallon) there are also relatively close to the predicted value of 29 miles per gallon.</p>
 </section>
 <section id="changing-the-plot-color" class="level4" data-number="3.2.4.2">
 <h4 data-number="3.2.4.2" class="anchored" data-anchor-id="changing-the-plot-color"><span class="header-section-number">3.2.4.2</span> Changing the Plot Color</h4>
